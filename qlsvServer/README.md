@@ -96,3 +96,76 @@ Nest is an MIT-licensed open source project. It can grow thanks to the sponsors 
 ## License
 
 Nest is [MIT licensed](https://github.com/nestjs/nest/blob/master/LICENSE).
+## Module Book (CRUD cá nhân)
+
+### Object: Book (Sách)
+
+Quản lý thông tin sách trong hệ thống Quản lý thư viện, gồm đầy đủ 5 chức năng CRUD.
+
+### Cấu trúc thư mục
+```src/book/
+
+├── book.entity.ts
+
+├── book.service.ts
+
+├── book.controller.ts
+
+├── book.module.ts
+
+└── dto/
+
+├── create-book.dto.ts'''
+
+└── update-book.dto.ts```
+### API Endpoints
+
+| Method | Endpoint      | Chức năng                  |
+|--------|---------------|-----------------------------|
+| POST   | /books        | Tạo sách mới                |
+| GET    | /books        | Lấy danh sách tất cả sách   |
+| GET    | /books/:id    | Lấy thông tin 1 sách theo id|
+| PATCH  | /books/:id    | Cập nhật thông tin sách     |
+| DELETE | /books/:id    | Xóa sách                    |
+
+### Activity Diagram - CRUD Book
+
+```mermaid
+flowchart TD
+    Start([Bắt đầu]) --> Choice{Người dùng chọn hành động}
+
+    Choice -->|Create| C1[Nhập thông tin sách: title, author, isbn,...]
+    C1 --> C2{ISBN đã tồn tại?}
+    C2 -->|Có| C3[Trả lỗi 409: ISBN trùng]
+    C2 -->|Không| C4[Lưu sách mới vào DB]
+    C4 --> C5[Trả về sách vừa tạo]
+    C3 --> End1([Kết thúc])
+    C5 --> End1
+
+    Choice -->|Read| R1[Gửi GET /books hoặc GET /books/:id]
+    R1 --> R2{Tìm thấy sách?}
+    R2 -->|Có| R3[Trả về dữ liệu sách]
+    R2 -->|Không| R4[Trả lỗi 404: không tìm thấy]
+    R3 --> End2([Kết thúc])
+    R4 --> End2
+
+    Choice -->|Update| U1[Gửi PATCH /books/:id kèm dữ liệu cần sửa]
+    U1 --> U2{Sách có tồn tại?}
+    U2 -->|Không| U3[Trả lỗi 404]
+    U2 -->|Có| U4[Cập nhật các trường thay đổi]
+    U4 --> U5[Lưu vào DB]
+    U5 --> U6[Trả về sách đã cập nhật]
+    U3 --> End3([Kết thúc])
+    U6 --> End3
+
+    Choice -->|Delete| D1[Gửi DELETE /books/:id]
+    D1 --> D2{Sách có tồn tại?}
+    D2 -->|Không| D3[Trả lỗi 404]
+    D2 -->|Có| D4[Xóa sách khỏi DB]
+    D4 --> D5[Trả về 204 No Content]
+    D3 --> End4([Kết thúc])
+    D5 --> End4
+```
+
+### Lưu ý
+Cần cấu hình thông tin kết nối Aiven MySQL trong `app.module.ts` (host, port, username, password, database) để chạy thử thực tế.
