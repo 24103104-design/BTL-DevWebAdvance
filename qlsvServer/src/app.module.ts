@@ -4,7 +4,6 @@ import { AppController } from './app.controller';
 import { AppService } from './app.service';
 
 // IMPORT ĐẦY ĐỦ CÁC MODULE CON
-import { BookModule } from './book/book.module';
 import { SachModule } from './sach/sach.module';
 import { DocGiaModule } from './doc-gia/doc-gia.module';
 import { PhieuMuonModule } from './phieu-muon/phieu-muon.module';
@@ -24,7 +23,6 @@ import { PhieuMuonModule } from './phieu-muon/phieu-muon.module';
         rejectUnauthorized: false,
       },
     }),
-    BookModule,
     SachModule,
     DocGiaModule,
     PhieuMuonModule,
