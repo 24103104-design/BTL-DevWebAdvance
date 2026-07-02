@@ -9,6 +9,8 @@ import { SachModule } from './sach/sach.module';
 import { DocGiaModule } from './doc-gia/doc-gia.module';
 import { PhieuMuonModule } from './phieu-muon/phieu-muon.module';
 
+import { AuthModule } from './auth/auth.module';
+import { UserModule } from './users/user.module';
 @Module({
   imports: [
     ConfigModule.forRoot({
@@ -39,6 +41,8 @@ import { PhieuMuonModule } from './phieu-muon/phieu-muon.module';
     SachModule,
     DocGiaModule,
     PhieuMuonModule,
+    AuthModule,
+    UserModule,
   ],
   controllers: [AppController],
   providers: [AppService],
