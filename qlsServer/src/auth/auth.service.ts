@@ -1,4 +1,8 @@
-import { Injectable, UnauthorizedException, ConflictException } from '@nestjs/common';
+import {
+  Injectable,
+  UnauthorizedException,
+  ConflictException,
+} from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
 import { UserService } from '../users/user.service';
 import { LoginDto } from './dto/login.dto';
@@ -14,7 +18,6 @@ export class AuthService {
   async register(registerDto: RegisterDto) {
     const { username, email, password } = registerDto;
 
-    
     const existingUser = await this.userService.findByUsername(username);
     if (existingUser !== null) {
       throw new ConflictException('Username đã được sử dụng');
@@ -39,13 +42,15 @@ export class AuthService {
     const { username, password } = loginDto;
 
     const user = await this.userService.findByUsername(username);
-    
-    
+
     if (user === null) {
       throw new UnauthorizedException('Username hoặc password không đúng');
     }
 
-    const isPasswordValid = await this.userService.validatePassword(password, user.password);
+    const isPasswordValid = await this.userService.validatePassword(
+      password,
+      user.password,
+    );
     if (!isPasswordValid) {
       throw new UnauthorizedException('Username hoặc password không đúng');
     }

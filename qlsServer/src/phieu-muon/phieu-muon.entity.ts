@@ -3,20 +3,20 @@ import { Entity, PrimaryColumn, Column } from 'typeorm';
 @Entity({ name: 'PHIEU_MUON' })
 export class PhieuMuonEntity {
   @PrimaryColumn({ name: 'MaPhieu', length: 10 })
-  maPhieu: string;
+  maPhieu!: string;
 
   @Column({ name: 'MaDocGia', length: 10 })
-  maDocGia: string;
+  maDocGia!: string;
 
   @Column({ name: 'MaSach', length: 10 })
-  maSach: string;
+  maSach!: string;
 
   @Column({ name: 'NgayMuon', type: 'date' })
-  ngayMuon: Date;
+  ngayMuon!: Date;
 
   @Column({ name: 'NgayHenTra', type: 'date', nullable: true })
-  ngayHenTra: Date;
+  ngayHenTra?: Date;
 
   @Column({ name: 'TrangThai', length: 30, default: 'Dang muon' })
-  trangThai: string;
+  trangThai!: string;
 }

@@ -21,11 +21,16 @@ export class DocGiaService {
 
   async findOne(maDocGia: string): Promise<DocGiaEntity> {
     const docGia = await this.docGiaRepository.findOne({ where: { maDocGia } });
-    if (!docGia) throw new NotFoundException(`Không tìm thấy độc giả mã: ${maDocGia}`);
+    if (!docGia) {
+      throw new NotFoundException(`Không tìm thấy độc giả mã: ${maDocGia}`);
+    }
     return docGia;
   }
 
-  async update(maDocGia: string, data: Partial<DocGiaEntity>): Promise<DocGiaEntity> {
+  async update(
+    maDocGia: string,
+    data: Partial<DocGiaEntity>,
+  ): Promise<DocGiaEntity> {
     const docGia = await this.findOne(maDocGia);
     Object.assign(docGia, data);
     return await this.docGiaRepository.save(docGia);

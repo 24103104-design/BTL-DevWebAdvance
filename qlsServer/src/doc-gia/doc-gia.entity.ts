@@ -3,17 +3,17 @@ import { Entity, PrimaryColumn, Column } from 'typeorm';
 @Entity({ name: 'DOC_GIA' })
 export class DocGiaEntity {
   @PrimaryColumn({ name: 'MaDocGia', length: 10 })
-  maDocGia: string;
+  maDocGia!: string;
 
   @Column({ name: 'HoTen', length: 50, nullable: false })
-  hoTen: string;
+  hoTen!: string;
 
   @Column({ name: 'NgaySinh', type: 'date', nullable: true })
-  ngaySinh: Date;
+  ngaySinh!: Date;
 
   @Column({ name: 'SoDienThoai', length: 15, nullable: true })
-  soDienThoai: string;
+  soDienThoai!: string;
 
   @Column({ name: 'Email', length: 50, nullable: true })
-  email: string;
+  email!: string;
 }

@@ -4,6 +4,10 @@ import { Strategy, ExtractJwt } from 'passport-jwt';
 import { ConfigService } from '@nestjs/config';
 import { AuthService } from './auth.service';
 
+interface JwtPayload {
+  sub: string;
+}
+
 @Injectable()
 export class JwtStrategy extends PassportStrategy(Strategy) {
   constructor(
@@ -11,8 +15,6 @@ export class JwtStrategy extends PassportStrategy(Strategy) {
     private authService: AuthService,
   ) {
     const secret = configService.get<string>('JWT_SECRET');
-    
-    
     if (!secret) {
       throw new Error('JWT_SECRET is not defined in .env file');
     }
@@ -20,11 +22,11 @@ export class JwtStrategy extends PassportStrategy(Strategy) {
     super({
       jwtFromRequest: ExtractJwt.fromAuthHeaderAsBearerToken(),
       ignoreExpiration: false,
-      secretOrKey: secret, 
+      secretOrKey: secret,
     });
   }
 
-  async validate(payload: any) {
+  async validate(payload: JwtPayload) {
     return this.authService.validateUser(payload.sub);
   }
 }

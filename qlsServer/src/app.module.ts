@@ -3,14 +3,12 @@ import { ConfigModule, ConfigService } from '@nestjs/config';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
-
-// IMPORT ĐẦY ĐỦ CÁC MODULE CON
 import { SachModule } from './sach/sach.module';
 import { DocGiaModule } from './doc-gia/doc-gia.module';
 import { PhieuMuonModule } from './phieu-muon/phieu-muon.module';
-
 import { AuthModule } from './auth/auth.module';
 import { UserModule } from './users/user.module';
+
 @Module({
   imports: [
     ConfigModule.forRoot({
