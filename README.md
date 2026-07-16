@@ -80,10 +80,8 @@ Một số điểm nhóm đã thực hiện như:
 - Cố gắng viết code sạch hơn, rõ ràng hơn và có cấu trúc hợp lý để người khác dễ đọc, dễ bảo trì.
 - Khi phát triển hệ thống, nhóm cũng quan tâm đến bảo mật, vì đó là trách nhiệm của người làm nghề công nghệ.
 
-### 5. Giải pháp còn thiếu
-Ngoài những biện pháp đã thực hiện, nhóm cũng nhận thấy project vẫn còn một số điểm cần cải thiện để hoàn thiện hơn về mặt bảo mật và trách nhiệm nghề nghiệp. Cụ thể, chưa có hệ thống phân quyền chi tiết theo vai trò như admin, user hay thủ thư; chưa có cơ chế refresh token và rate limiting để hạn chế tình trạng token bị lạm dụng hoặc tấn công brute-force; chưa triển khai HTTPS ở môi trường thực tế; và chưa có đầy đủ quy trình kiểm thử bảo mật cũng như ghi log hoạt động hệ thống. Bên cạnh đó, nhóm cũng chưa xây dựng được chính sách bảo mật dữ liệu và quy định về quyền riêng tư rõ ràng như một sản phẩm thực tế cần có. Những điểm còn thiếu này là cơ hội để nhóm tiếp tục hoàn thiện project trong tương lai, giúp sản phẩm vừa đạt được chức năng, vừa đáp ứng tốt hơn các yêu cầu về pháp lý, đạo đức và nghề nghiệp.
 
-### 6. Kết luận
+### 5. Kết luận
 Tóm lại, khi làm project, nhóm không chỉ nghĩ đến chức năng chạy được mà còn cần có trách nhiệm với pháp luật, đạo đức xã hội và đạo đức nghề nghiệp. Project này đã có một số biện pháp bảo mật cơ bản như dùng JWT, bcrypt, validation, guard và biến môi trường. Ngoài ra, nhóm cũng có ý thức bảo vệ dữ liệu người dùng, không làm sai lệch mục đích của sản phẩm và luôn cố gắng làm việc chuyên nghiệp hơn. Đây là những điều rất cần thiết đối với một sinh viên học công nghệ thông tin, vì kỹ năng nghề nghiệp không chỉ nằm ở code mà còn nằm ở cách mình làm việc và cách mình đối xử với người dùng cũng như với đồng nghiệp.
 
 
