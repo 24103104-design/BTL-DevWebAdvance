@@ -1,0 +1,179 @@
+/* ==== Nút bấm dùng chung ==== */
+.btn {
+  border: none;
+  border-radius: 8px;
+  padding: 9px 16px;
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: opacity 0.15s ease;
+}
+.btn:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+.btn-primary {
+  background: #f4772e;
+  color: #fff;
+}
+.btn-primary:hover:not(:disabled) {
+  opacity: 0.9;
+}
+.btn-outline {
+  background: #fff;
+  color: #3a415c;
+  border: 1px solid #dde1eb;
+}
+.btn-outline:hover:not(:disabled) {
+  background: #f6f7fb;
+}
+.btn-danger-text {
+  background: transparent;
+  color: #d63b3b;
+  border: none;
+  font-weight: 600;
+  padding: 6px 8px;
+}
+.btn-link-text {
+  background: transparent;
+  color: #1a56db;
+  border: none;
+  font-weight: 600;
+  padding: 6px 8px;
+}
+.btn-sm {
+  padding: 6px 10px;
+  font-size: 12px;
+}
+
+/* ==== Card nội dung trắng bo góc, giống khung "Tin tức" trong ảnh mẫu ==== */
+.page-card {
+  background: #fff;
+  border-radius: 12px;
+  box-shadow: 0 1px 3px rgba(16, 24, 64, 0.06);
+  padding: 20px 22px 24px;
+}
+
+.page-card-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 18px;
+  flex-wrap: wrap;
+  gap: 12px;
+}
+
+.page-card-header h2 {
+  margin: 0;
+  font-size: 17px;
+  color: #16223f;
+}
+
+/* ==== Hàng tab lọc, giống "Toàn bộ / Phòng ..." trong ảnh mẫu ==== */
+.tabs-row {
+  display: flex;
+  gap: 24px;
+  border-bottom: 1px solid #eef0f5;
+  margin-bottom: 16px;
+}
+
+.tab-item {
+  background: transparent;
+  border: none;
+  border-bottom: 2px solid transparent;
+  padding: 10px 2px;
+  font-size: 13px;
+  font-weight: 500;
+  color: #6b7280;
+  cursor: pointer;
+}
+
+.tab-item:hover {
+  color: #16223f;
+}
+
+.tab-item.active {
+  color: #f4772e;
+  border-bottom-color: #f4772e;
+  font-weight: 600;
+}
+
+/* ==== Thanh filter/search, giống hàng "Từ ngày / Đến ngày / Tìm kiếm" trong ảnh mẫu ==== */
+.filter-bar {
+  display: flex;
+  align-items: flex-end;
+  gap: 12px;
+  flex-wrap: wrap;
+  padding-bottom: 16px;
+  margin-bottom: 16px;
+  border-bottom: 1px solid #eef0f5;
+}
+
+.filter-field {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.filter-field label {
+  font-size: 12px;
+  color: #6b7280;
+}
+
+.filter-field input,
+.filter-field select {
+  border: 1px solid #dde1eb;
+  border-radius: 8px;
+  padding: 8px 12px;
+  font-size: 13px;
+  min-width: 180px;
+  outline: none;
+}
+
+.filter-field input:focus,
+.filter-field select:focus {
+  border-color: #f4772e;
+}
+
+/* ==== Bảng dữ liệu ==== */
+.data-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 13px;
+}
+
+.data-table thead th {
+  text-align: left;
+  color: #6b7280;
+  font-weight: 600;
+  padding: 10px 12px;
+  border-bottom: 1px solid #eef0f5;
+  white-space: nowrap;
+}
+
+.data-table tbody td {
+  padding: 12px;
+  border-bottom: 1px solid #f4f5f9;
+  color: #232a45;
+  vertical-align: middle;
+}
+
+.data-table tbody tr:hover {
+  background: #fafbfd;
+}
+
+.table-actions {
+  display: flex;
+  gap: 4px;
+}
+
+.empty-state {
+  text-align: center;
+  padding: 40px 0;
+  color: #9aa0b4;
+  font-size: 13px;
+}
+
+.table-wrap {
+  overflow-x: auto;
+}

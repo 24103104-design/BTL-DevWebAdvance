@@ -1,4 +1,5 @@
-import { Entity, PrimaryColumn, Column } from 'typeorm';
+import { Entity, PrimaryColumn, Column, OneToMany } from 'typeorm';
+import { PhieuMuonEntity } from '../phieu-muon/phieu-muon.entity';
 
 @Entity({ name: 'SACH' })
 export class SachEntity {
@@ -19,4 +20,7 @@ export class SachEntity {
 
   @Column({ name: 'SoLuong', type: 'int', default: 0 })
   soLuong!: number;
+
+  @OneToMany(() => PhieuMuonEntity, (phieuMuon) => phieuMuon.sach)
+  phieuMuons!: PhieuMuonEntity[];
 }

@@ -1,4 +1,5 @@
-import { Entity, PrimaryColumn, Column } from 'typeorm';
+import { Entity, PrimaryColumn, Column, OneToMany } from 'typeorm';
+import { PhieuMuonEntity } from '../phieu-muon/phieu-muon.entity';
 
 @Entity({ name: 'DOC_GIA' })
 export class DocGiaEntity {
@@ -16,4 +17,7 @@ export class DocGiaEntity {
 
   @Column({ name: 'Email', length: 50, nullable: true })
   email!: string;
+
+  @OneToMany(() => PhieuMuonEntity, (phieuMuon) => phieuMuon.docGia)
+  phieuMuons!: PhieuMuonEntity[];
 }

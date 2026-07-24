@@ -8,14 +8,15 @@ import {
   Delete,
 } from '@nestjs/common';
 import { DocGiaService } from './doc-gia.service';
-import { DocGiaEntity } from './doc-gia.entity';
+import { CreateDocGiaDto } from './dto/create-docgia.dto';
+import { UpdateDocGiaDto } from './dto/update-docgia.dto';
 
 @Controller('doc-gia')
 export class DocGiaController {
   constructor(private readonly docGiaService: DocGiaService) {}
 
   @Post()
-  create(@Body() data: Partial<DocGiaEntity>) {
+  create(@Body() data: CreateDocGiaDto) {
     return this.docGiaService.create(data);
   }
 
@@ -30,7 +31,7 @@ export class DocGiaController {
   }
 
   @Put(':id')
-  update(@Param('id') id: string, @Body() data: Partial<DocGiaEntity>) {
+  update(@Param('id') id: string, @Body() data: UpdateDocGiaDto) {
     return this.docGiaService.update(id, data);
   }
 
