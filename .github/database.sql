@@ -7,7 +7,7 @@ CREATE TABLE SACH (
     SoLuong INT DEFAULT 0
 );
 
--- Tạo bảng Độc giả
+-- 2. Tạo bảng Độc giả
 CREATE TABLE DOC_GIA (
     MaDocGia VARCHAR(10) PRIMARY KEY,
     HoTen VARCHAR(50) NOT NULL,
@@ -16,14 +16,13 @@ CREATE TABLE DOC_GIA (
     Email VARCHAR(50)
 );
 
--- Tạo bảng Phiếu mượn sách
+-- 3. Tạo bảng Phiếu mượn sách
 CREATE TABLE PHIEU_MUON (
     MaPhieu VARCHAR(10) PRIMARY KEY,
     MaDocGia VARCHAR(10),
     MaSach VARCHAR(10),
     NgayMuon DATE NOT NULL,
     NgayHenTra DATE,
-    NgayTra DATE,
     TrangThai VARCHAR(30) DEFAULT 'Đang mượn',
     FOREIGN KEY (MaDocGia) REFERENCES DOC_GIA(MaDocGia),
     FOREIGN KEY (MaSach) REFERENCES SACH(MaSach)

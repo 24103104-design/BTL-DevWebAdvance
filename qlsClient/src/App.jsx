@@ -1,56 +1,132 @@
-import { useState } from "react";
-import BorrowingPage from "./pages/borrowing/BorrowingPage";
-import ReadersPage from "./pages/readers/ReadersPage";
-import "./styles/dashboard-ui.css";
+import "bootstrap/dist/css/bootstrap.min.css";
+import { BrowserRouter, Routes, Route, Navigate, NavLink, useLocation } from 'react-router-dom';
+import { useEffect, useMemo, useState } from 'react';
+import './App.css';
+import Login from './pages/Login.jsx';
+import Dashboard from './pages/Dashboard.jsx';
+import Books from './pages/Books.jsx';
+import Readers from './pages/Readers.jsx';
+import Borrowing from './pages/Borrowing.jsx';
 
-const TABS = [
-  { key: "borrowing", label: "Borrowing" },
-  { key: "readers", label: "Readers" },
-  { key: "dashboard", label: "Dashboard" },
-];
+function RequireAuth({ token, children }) {
+  const location = useLocation();
 
-function DashboardContent() {
+  if (!token) {
+    return <Navigate to="/login" state={{ from: location }} replace />;
+  }
+
+  return children;
+}
+
+function ProtectedLayout({ token, onLogout }) {
   return (
-    <div className="page-card">
-      <div className="page-card-header">
-        <h2>Dashboard</h2>
-      </div>
-      <div style={{ padding: 16 }}>
-        <p>Đây là trang dashboard tạm thời.</p>
-        <p>Hiện tại chỉ có trang Reader và Borrowing hoạt động.</p>
+    <div className="app-shell">
+      <aside className="app-sidebar">
+        <div className="brand-logo">
+          <div className="brand-mark">LP</div>
+          <div>
+            <strong>Library</strong>
+            <span>Phenikaa</span>
+          </div>
+        </div>
+
+        <nav className="sidebar-nav">
+          <NavLink to="/dashboard" className="sidebar-link">
+            <span className="sidebar-icon">🏠</span>
+            Trang chủ
+          </NavLink>
+          <NavLink to="/books" className="sidebar-link">
+            <span className="sidebar-icon">📚</span>
+            Quản lý sách
+          </NavLink>
+          <NavLink to="/readers" className="sidebar-link">
+            <span className="sidebar-icon">👤</span>
+            Quản lý độc giả
+          </NavLink>
+          <NavLink to="/borrowing" className="sidebar-link">
+            <span className="sidebar-icon">📝</span>
+            Phiếu mượn
+          </NavLink>
+          <NavLink to="/dashboard" className="sidebar-link">
+            <span className="sidebar-icon">📊</span>
+            Thống kê
+          </NavLink>
+        </nav>
+
+        <div className="sidebar-footer">
+          <p>Hệ thống quản lý thư viện</p>
+          <small>Phenikaa University</small>
+        </div>
+      </aside>
+
+      <div className="app-main">
+        <header className="topbar">
+          <div className="topbar-search input-group">
+            <input type="search" className="form-control" placeholder="Tìm kiếm chức năng..." />
+            <button className="btn btn-outline-secondary" type="button">
+              Tìm kiếm
+            </button>
+          </div>
+          <div className="topbar-user">
+            <span className="user-name">Người dùng</span>
+            <div className="user-avatar">GD</div>
+            <button className="btn btn-outline-secondary btn-logout" onClick={onLogout}>
+              Đăng xuất
+            </button>
+          </div>
+        </header>
+
+        <Routes>
+          <Route path="/dashboard" element={<Dashboard />} />
+          <Route path="/books" element={<Books />} />
+          <Route path="/readers" element={<Readers />} />
+          <Route path="/borrowing" element={<Borrowing />} />
+          <Route path="*" element={<Navigate to="/dashboard" replace />} />
+        </Routes>
       </div>
     </div>
   );
 }
 
 function App() {
-  const [activeTab, setActiveTab] = useState("borrowing");
+  const storedToken = localStorage.getItem('authToken');
+  const [token, setToken] = useState(storedToken || '');
 
-  let content;
-  if (activeTab === "borrowing") content = <BorrowingPage />;
-  else if (activeTab === "readers") content = <ReadersPage />;
-  else content = <DashboardContent />;
+  useEffect(() => {
+    if (token) {
+      localStorage.setItem('authToken', token);
+    } else {
+      localStorage.removeItem('authToken');
+    }
+  }, [token]);
+
+  const authContext = useMemo(
+    () => ({ token, setToken }),
+    [token],
+  );
+
+  function handleLogin(newToken) {
+    setToken(newToken);
+  }
+
+  function handleLogout() {
+    setToken('');
+  }
 
   return (
-    <div>
-      <div className="page-card" style={{ margin: 16 }}>
-        <div className="page-card-header">
-          <h2>QLS Client Demo</h2>
-        </div>
-        <div className="tabs-row">
-          {TABS.map((tab) => (
-            <button
-              key={tab.key}
-              className={"tab-item" + (activeTab === tab.key ? " active" : "")}
-              onClick={() => setActiveTab(tab.key)}
-            >
-              {tab.label}
-            </button>
-          ))}
-        </div>
-      </div>
-      {content}
-    </div>
+    <BrowserRouter>
+      <Routes>
+        <Route path="/login" element={<Login onLogin={handleLogin} token={token} />} />
+        <Route
+          path="/*"
+          element={
+            <RequireAuth token={token}>
+              <ProtectedLayout token={token} onLogout={handleLogout} />
+            </RequireAuth>
+          }
+        />
+      </Routes>
+    </BrowserRouter>
   );
 }
 

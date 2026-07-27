@@ -20,8 +20,6 @@
     "forceConsistentCasingInFileNames": true,
     "noImplicitAny": false,
     "strictBindCallApply": false,
-    "noFallthroughCasesInSwitch": false,
-    "types": ["node", "jest"]
-  },
-  "exclude": ["node_modules", "dist"]
+    "noFallthroughCasesInSwitch": false
+  }
 }

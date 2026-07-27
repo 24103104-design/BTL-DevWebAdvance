@@ -8,6 +8,5 @@ import { SachController } from './sach.controller';
   imports: [TypeOrmModule.forFeature([SachEntity])],
   controllers: [SachController],
   providers: [SachService],
-  exports: [SachService],
 })
 export class SachModule {}

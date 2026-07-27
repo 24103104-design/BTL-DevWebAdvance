@@ -1,12 +1,4 @@
-import { Entity, PrimaryColumn, Column, ManyToOne, JoinColumn } from 'typeorm';
-import { DocGiaEntity } from '../doc-gia/doc-gia.entity';
-import { SachEntity } from '../sach/sach.entity';
-
-export enum TrangThaiPhieuMuon {
-  DANG_MUON = 'Dang muon',
-  DA_TRA = 'Da tra',
-  QUA_HAN = 'Qua han',
-}
+import { Entity, PrimaryColumn, Column } from 'typeorm';
 
 @Entity({ name: 'PHIEU_MUON' })
 export class PhieuMuonEntity {
@@ -25,23 +17,6 @@ export class PhieuMuonEntity {
   @Column({ name: 'NgayHenTra', type: 'date', nullable: true })
   ngayHenTra?: Date;
 
-  @Column({ name: 'NgayTra', type: 'date', nullable: true })
-  ngayTra?: Date;
-
-  @Column({
-    name: 'TrangThai',
-    length: 30,
-    default: TrangThaiPhieuMuon.DANG_MUON,
-  })
-  trangThai!: TrangThaiPhieuMuon;
-
-  // maDocGia/maSach columns above stay as-is (matches existing DB schema);
-  // these relations let us load full DocGia/Sach info via .find({ relations: [...] })
-  @ManyToOne(() => DocGiaEntity, (docGia) => docGia.phieuMuons)
-  @JoinColumn({ name: 'MaDocGia' })
-  docGia!: DocGiaEntity;
-
-  @ManyToOne(() => SachEntity, (sach) => sach.phieuMuons)
-  @JoinColumn({ name: 'MaSach' })
-  sach!: SachEntity;
+  @Column({ name: 'TrangThai', length: 30, default: 'Dang muon' })
+  trangThai!: string;
 }
