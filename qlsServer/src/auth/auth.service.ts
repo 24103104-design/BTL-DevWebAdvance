@@ -16,16 +16,26 @@ export class AuthService {
   ) {}
 
   async register(registerDto: RegisterDto) {
-    const { username, email, password } = registerDto;
+    const { username, email, password, fullName } = registerDto;
 
     const existingUser = await this.userService.findByUsername(username);
     if (existingUser !== null) {
       throw new ConflictException('Username đã được sử dụng');
     }
 
+    const existingEmail = await this.userService.findByEmail(email);
+    if (existingEmail !== null) {
+      throw new ConflictException('Email đã được sử dụng');
+    }
+
     const user = await this.userService.create(username, email, password, 'user');
 
-    const payload = { sub: user.id, username: user.username, role: user.role };
+    const payload = {
+      sub: user.id,
+      username: user.username,
+      role: user.role,
+      fullName: fullName?.trim() || user.username,
+    };
     const access_token = this.jwtService.sign(payload);
 
     return {
@@ -35,12 +45,14 @@ export class AuthService {
         username: user.username,
         email: user.email,
         role: user.role,
+        avatarUrl: user.avatarUrl ?? null,
+        fullName: fullName?.trim() || user.username,
       },
     };
   }
 
   async login(loginDto: LoginDto) {
-    const { username, password } = loginDto;
+    const { username, password, fullName } = loginDto;
 
     const user = await this.userService.findByUsername(username);
 
@@ -56,7 +68,12 @@ export class AuthService {
       throw new UnauthorizedException('Username hoặc password không đúng');
     }
 
-    const payload = { sub: user.id, username: user.username, role: user.role };
+    const payload = {
+      sub: user.id,
+      username: user.username,
+      role: user.role,
+      fullName: fullName?.trim() || user.username,
+    };
     const access_token = this.jwtService.sign(payload);
 
     return {
@@ -66,6 +83,8 @@ export class AuthService {
         username: user.username,
         email: user.email,
         role: user.role,
+        avatarUrl: user.avatarUrl ?? null,
+        fullName: fullName?.trim() || user.username,
       },
     };
   }

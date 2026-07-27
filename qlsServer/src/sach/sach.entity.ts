@@ -19,4 +19,7 @@ export class SachEntity {
 
   @Column({ name: 'SoLuong', type: 'int', default: 0 })
   soLuong!: number;
+
+  @Column({ name: 'AnhBia', type: 'text', nullable: true })
+  anhBia?: string;
 }

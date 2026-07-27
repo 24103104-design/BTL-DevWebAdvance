@@ -1,6 +1,7 @@
 import { useEffect, useMemo, useState } from "react";
 import docGiaApi from "../../api/docGiaApi";
 import ReaderFormModal from "../../components/readers/ReaderFormModal";
+import { useToast } from "../../components/common/ToastProvider.jsx";
 import "../../styles/dashboard-ui.css";
 
 export default function ReadersPage() {
@@ -9,6 +10,7 @@ export default function ReadersPage() {
   const [error, setError] = useState("");
   const [search, setSearch] = useState("");
   const [modalState, setModalState] = useState(null); // null | { mode: 'create' } | { mode: 'edit', data }
+  const toast = useToast();
 
   const fetchReaders = async () => {
     setLoading(true);
@@ -41,25 +43,36 @@ export default function ReadersPage() {
   }, [readers, search]);
 
   const handleCreateSubmit = async (form) => {
-    await docGiaApi.create(form);
-    setModalState(null);
-    fetchReaders();
+    try {
+      await docGiaApi.create(form);
+      setModalState(null);
+      toast?.showToast('Thêm độc giả thành công', 'success');
+      fetchReaders();
+    } catch (err) {
+      toast?.showToast(err.message || 'Không thể thêm độc giả', 'error');
+    }
   };
 
   const handleEditSubmit = async (form) => {
     const { maDocGia, ...rest } = form;
-    await docGiaApi.update(maDocGia, rest);
-    setModalState(null);
-    fetchReaders();
+    try {
+      await docGiaApi.update(maDocGia, rest);
+      setModalState(null);
+      toast?.showToast('Cập nhật độc giả thành công', 'success');
+      fetchReaders();
+    } catch (err) {
+      toast?.showToast(err.message || 'Không thể cập nhật độc giả', 'error');
+    }
   };
 
   const handleDelete = async (reader) => {
     if (!window.confirm(`Xóa độc giả ${reader.hoTen} (${reader.maDocGia})?`)) return;
     try {
       await docGiaApi.remove(reader.maDocGia);
+      toast?.showToast('Đã xóa độc giả thành công', 'success');
       fetchReaders();
     } catch (err) {
-      alert(err.message);
+      toast?.showToast(err.message || 'Không thể xóa độc giả', 'error');
     }
   };
 
@@ -104,7 +117,7 @@ export default function ReadersPage() {
               </tr>
             ) : filteredReaders.length === 0 ? (
               <tr>
-                <td colSpan={6} className="empty-state">Không có độc giả nào</td>
+                <td colSpan={6} className="empty-state">Chưa có độc giả nào, hãy thêm độc giả đầu tiên</td>
               </tr>
             ) : (
               filteredReaders.map((r) => (

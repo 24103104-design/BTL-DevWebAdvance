@@ -4,6 +4,7 @@ import { register } from '../services/authService.js';
 
 export default function Register({ onLogin, token }) {
   const [username, setUsername] = useState('');
+  const [fullName, setFullName] = useState('');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
@@ -22,9 +23,9 @@ export default function Register({ onLogin, token }) {
     setLoading(true);
 
     try {
-      const response = await register({ username, email, password });
+      const response = await register({ username, email, password, fullName });
       const authToken = response.data.access_token;
-      onLogin(authToken);
+      onLogin(authToken, response.data.user);
       navigate('/dashboard', { replace: true });
     } catch (err) {
       const message = err?.response?.data?.message || 'Đăng ký thất bại. Vui lòng thử lại.';
@@ -49,6 +50,16 @@ export default function Register({ onLogin, token }) {
               type="text"
               placeholder="Nhập username"
               required
+            />
+          </label>
+
+          <label>
+            Họ và tên
+            <input
+              value={fullName}
+              onChange={(e) => setFullName(e.target.value)}
+              type="text"
+              placeholder="Nhập họ và tên"
             />
           </label>
 

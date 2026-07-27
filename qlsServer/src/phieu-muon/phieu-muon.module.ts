@@ -8,5 +8,6 @@ import { PhieuMuonController } from './phieu-muon.controller';
   imports: [TypeOrmModule.forFeature([PhieuMuonEntity])],
   controllers: [PhieuMuonController],
   providers: [PhieuMuonService],
+  exports: [PhieuMuonService],
 })
 export class PhieuMuonModule {}

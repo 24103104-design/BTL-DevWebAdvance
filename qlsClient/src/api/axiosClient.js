@@ -9,10 +9,15 @@ const axiosClient = axios.create({
 
 // Tự động đính kèm JWT token (nếu đã đăng nhập) vào mỗi request
 axiosClient.interceptors.request.use((config) => {
-  const token = localStorage.getItem("token");
+  const token = localStorage.getItem('authToken') || localStorage.getItem('token');
   if (token) {
     config.headers.Authorization = `Bearer ${token}`;
   }
+
+  if (config.data instanceof FormData) {
+    delete config.headers['Content-Type'];
+  }
+
   return config;
 });
 

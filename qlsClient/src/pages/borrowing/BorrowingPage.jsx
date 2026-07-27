@@ -5,6 +5,7 @@ import sachApi from "../../api/sachApi";
 import BorrowFormModal from "../../components/borrowing/BorrowFormModal";
 import ReturnBookModal from "../../components/borrowing/ReturnBookModal";
 import StatusBadge from "../../components/common/StatusBadge";
+import { useToast } from "../../components/common/ToastProvider.jsx";
 import "../../styles/dashboard-ui.css";
 
 const TABS = [
@@ -34,6 +35,9 @@ export default function BorrowingPage() {
   const [search, setSearch] = useState("");
   const [showCreateModal, setShowCreateModal] = useState(false);
   const [returningPhieu, setReturningPhieu] = useState(null);
+  const [fromDate, setFromDate] = useState("");
+  const [toDate, setToDate] = useState("");
+  const toast = useToast();
 
   const fetchAll = async () => {
     setLoading(true);
@@ -81,28 +85,45 @@ export default function BorrowingPage() {
           p.maSach?.toLowerCase().includes(keyword) ||
           readerMap[p.maDocGia]?.toLowerCase().includes(keyword)
         );
+      })
+      .filter((p) => {
+        const borrowDate = String(p.ngayMuon || '').slice(0, 10);
+        if (fromDate && borrowDate < fromDate) return false;
+        if (toDate && borrowDate > toDate) return false;
+        return true;
       });
-  }, [phieus, activeTab, search, readerMap]);
+  }, [phieus, activeTab, search, readerMap, fromDate, toDate]);
 
   const handleCreate = async (form) => {
-    await phieuMuonApi.create(form);
-    setShowCreateModal(false);
-    fetchAll();
+    try {
+      await phieuMuonApi.create(form);
+      setShowCreateModal(false);
+      toast?.showToast('Tạo phiếu mượn thành công', 'success');
+      fetchAll();
+    } catch (err) {
+      toast?.showToast(err.message || 'Không thể tạo phiếu mượn', 'error');
+    }
   };
 
   const handleConfirmReturn = async (phieu) => {
-    await phieuMuonApi.traSach(phieu.maPhieu);
-    setReturningPhieu(null);
-    fetchAll();
+    try {
+      await phieuMuonApi.traSach(phieu.maPhieu);
+      setReturningPhieu(null);
+      toast?.showToast('Đã xác nhận trả sách', 'success');
+      fetchAll();
+    } catch (err) {
+      toast?.showToast(err.message || 'Không thể trả sách', 'error');
+    }
   };
 
   const handleDelete = async (phieu) => {
     if (!window.confirm(`Xóa phiếu mượn ${phieu.maPhieu}?`)) return;
     try {
       await phieuMuonApi.remove(phieu.maPhieu);
+      toast?.showToast('Đã xóa phiếu mượn', 'success');
       fetchAll();
     } catch (err) {
-      alert(err.message);
+      toast?.showToast(err.message || 'Không thể xóa phiếu mượn', 'error');
     }
   };
 
@@ -136,6 +157,14 @@ export default function BorrowingPage() {
             onChange={(e) => setSearch(e.target.value)}
           />
         </div>
+        <div className="filter-field">
+          <label>Từ ngày</label>
+          <input type="date" value={fromDate} onChange={(e) => setFromDate(e.target.value)} />
+        </div>
+        <div className="filter-field">
+          <label>Đến ngày</label>
+          <input type="date" value={toDate} onChange={(e) => setToDate(e.target.value)} />
+        </div>
       </div>
 
       {error && <div className="form-error" style={{ marginBottom: 12 }}>{error}</div>}
@@ -160,7 +189,7 @@ export default function BorrowingPage() {
               </tr>
             ) : filteredPhieus.length === 0 ? (
               <tr>
-                <td colSpan={7} className="empty-state">Không có phiếu mượn nào</td>
+                <td colSpan={7} className="empty-state">Không có phiếu mượn nào phù hợp</td>
               </tr>
             ) : (
               filteredPhieus.map((p) => (

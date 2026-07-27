@@ -1,24 +1,22 @@
-import axios from 'axios';
-
-const API_BASE = import.meta.env.VITE_API_BASE || import.meta.env.VITE_API_URL || 'http://localhost:3000';
+import axiosClient from '../api/axiosClient.js';
 
 export function getBooks(search = '') {
-  const url = `${API_BASE}/sach${search ? `?search=${encodeURIComponent(search)}` : ''}`;
-  return axios.get(url);
+  const url = `/sach${search ? `?search=${encodeURIComponent(search)}` : ''}`;
+  return axiosClient.get(url);
 }
 
 export function getBook(maSach) {
-  return axios.get(`${API_BASE}/sach/${maSach}`);
+  return axiosClient.get(`/sach/${maSach}`);
 }
 
 export function createBook(data) {
-  return axios.post(`${API_BASE}/sach`, data);
+  return axiosClient.post('/sach', data);
 }
 
 export function updateBook(maSach, data) {
-  return axios.put(`${API_BASE}/sach/${maSach}`, data);
+  return axiosClient.put(`/sach/${maSach}`, data);
 }
 
 export function removeBook(maSach) {
-  return axios.delete(`${API_BASE}/sach/${maSach}`);
+  return axiosClient.delete(`/sach/${maSach}`);
 }

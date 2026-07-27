@@ -15,6 +15,10 @@ export class DocGiaService {
     return await this.docGiaRepository.save(newDocGia);
   }
 
+  async countAll(): Promise<number> {
+    return this.docGiaRepository.count();
+  }
+
   async findAll(): Promise<DocGiaEntity[]> {
     return await this.docGiaRepository.find();
   }

@@ -23,7 +23,7 @@ export default function Login({ onLogin, token }) {
     try {
       const response = await login({ username, password });
       const authToken = response.data.access_token;
-      onLogin(authToken);
+      onLogin(authToken, response.data.user);
       navigate('/dashboard', { replace: true });
     } catch (err) {
       const message = err?.response?.data?.message || 'Đăng nhập thất bại. Vui lòng kiểm tra lại.';

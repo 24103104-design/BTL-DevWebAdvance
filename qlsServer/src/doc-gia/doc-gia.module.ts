@@ -8,5 +8,6 @@ import { DocGiaController } from './doc-gia.controller';
   imports: [TypeOrmModule.forFeature([DocGiaEntity])],
   controllers: [DocGiaController],
   providers: [DocGiaService],
+  exports: [DocGiaService],
 })
 export class DocGiaModule {}

@@ -7,6 +7,8 @@ import { AuthService } from './auth.service';
 interface JwtPayload {
   sub: string;
   role: string;
+  username?: string;
+  fullName?: string;
 }
 
 @Injectable()
@@ -37,6 +39,8 @@ export class JwtStrategy extends PassportStrategy(Strategy) {
       username: user.username,
       email: user.email,
       role: payload.role,
+      avatarUrl: user.avatarUrl ?? null,
+      fullName: payload.fullName || payload.username || user.username,
     };
   }
 }

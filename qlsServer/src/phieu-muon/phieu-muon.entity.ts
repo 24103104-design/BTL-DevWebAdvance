@@ -1,5 +1,11 @@
 import { Entity, PrimaryColumn, Column } from 'typeorm';
 
+export enum TrangThaiPhieuMuon {
+  DANG_MUON = 'Dang muon',
+  QUA_HAN = 'Qua han',
+  DA_TRA = 'Da tra',
+}
+
 @Entity({ name: 'PHIEU_MUON' })
 export class PhieuMuonEntity {
   @PrimaryColumn({ name: 'MaPhieu', length: 10 })

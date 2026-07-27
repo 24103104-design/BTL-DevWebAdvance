@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { User } from './user.entity';
@@ -13,6 +13,10 @@ export class UserService {
 
   async findByUsername(username: string): Promise<User | null> {
     return this.userRepository.findOne({ where: { username } });
+  }
+
+  async findByEmail(email: string): Promise<User | null> {
+    return this.userRepository.findOne({ where: { email } });
   }
 
   async findById(id: string): Promise<User | null> {
@@ -34,6 +38,16 @@ export class UserService {
       role,
     });
 
+    return this.userRepository.save(user);
+  }
+
+  async updateAvatarUrl(id: string, avatarUrl: string): Promise<User> {
+    const user = await this.findById(id);
+    if (!user) {
+      throw new NotFoundException('Không tìm thấy người dùng');
+    }
+
+    user.avatarUrl = avatarUrl;
     return this.userRepository.save(user);
   }
 

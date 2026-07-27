@@ -17,3 +17,14 @@ export function getProfile(token) {
     },
   });
 }
+
+export function uploadAvatar(token, file) {
+  const formData = new FormData();
+  formData.append('file', file);
+
+  return axios.patch(`${API_BASE}/users/avatar`, formData, {
+    headers: {
+      Authorization: `Bearer ${token}`,
+    },
+  });
+}

@@ -1,3 +1,4 @@
+import { Type } from 'class-transformer';
 import { IsString, IsNotEmpty, IsOptional, MaxLength, IsInt, Min } from 'class-validator';
 
 export class CreateSachDto {
@@ -22,11 +23,17 @@ export class CreateSachDto {
   nhaXuatBan?: string;
 
   @IsOptional()
+  @Type(() => Number)
   @IsInt({ message: 'Năm xuất bản phải là số' })
   namXuatBan?: number;
 
   @IsOptional()
+  @Type(() => Number)
   @IsInt({ message: 'Số lượng phải là số' })
   @Min(0, { message: 'Số lượng không thể âm' })
   soLuong?: number;
+
+  @IsOptional()
+  @IsString()
+  anhBia?: string;
 }

@@ -15,6 +15,10 @@ export class SachService {
     return await this.sachRepository.save(newSach);
   }
 
+  async countAll(): Promise<number> {
+    return this.sachRepository.count();
+  }
+
   async findAll(search?: string): Promise<SachEntity[]> {
     const query = this.sachRepository.createQueryBuilder('sach');
 

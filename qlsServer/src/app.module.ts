@@ -8,6 +8,7 @@ import { DocGiaModule } from './doc-gia/doc-gia.module';
 import { PhieuMuonModule } from './phieu-muon/phieu-muon.module';
 import { AuthModule } from './auth/auth.module';
 import { UserModule } from './users/user.module';
+import { DbInitService } from './db-init.service';
 
 @Module({
   imports: [
@@ -27,6 +28,8 @@ import { UserModule } from './users/user.module';
         database: configService.get<string>('DB_NAME'),
         autoLoadEntities: true,
         synchronize: configService.get<string>('DB_SYNCHRONIZE') === 'true',
+        migrations: ['dist/migrations/*.js', 'src/migrations/*.ts'],
+        migrationsRun: false,
         ssl:
           configService.get<string>('DB_SSL') === 'true'
             ? {
@@ -43,6 +46,6 @@ import { UserModule } from './users/user.module';
     UserModule,
   ],
   controllers: [AppController],
-  providers: [AppService],
+  providers: [AppService, DbInitService],
 })
 export class AppModule {}
