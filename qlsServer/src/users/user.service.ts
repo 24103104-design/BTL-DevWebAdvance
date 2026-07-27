@@ -23,6 +23,7 @@ export class UserService {
     username: string,
     email: string,
     password: string,
+    role: string,
   ): Promise<User> {
     const hashedPassword = await bcrypt.hash(password, 10);
 
@@ -30,6 +31,7 @@ export class UserService {
       username,
       email,
       password: hashedPassword,
+      role,
     });
 
     return this.userRepository.save(user);

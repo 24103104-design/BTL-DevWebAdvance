@@ -1,9 +1,10 @@
 import { useState, useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-import { login } from '../services/authService.js';
+import { register } from '../services/authService.js';
 
-export default function Login({ onLogin, token }) {
+export default function Register({ onLogin, token }) {
   const [username, setUsername] = useState('');
+  const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
@@ -21,12 +22,12 @@ export default function Login({ onLogin, token }) {
     setLoading(true);
 
     try {
-      const response = await login({ username, password });
+      const response = await register({ username, email, password });
       const authToken = response.data.access_token;
       onLogin(authToken);
       navigate('/dashboard', { replace: true });
     } catch (err) {
-      const message = err?.response?.data?.message || 'Đăng nhập thất bại. Vui lòng kiểm tra lại.';
+      const message = err?.response?.data?.message || 'Đăng ký thất bại. Vui lòng thử lại.';
       setError(message);
     } finally {
       setLoading(false);
@@ -36,17 +37,28 @@ export default function Login({ onLogin, token }) {
   return (
     <div className="login-page">
       <div className="login-card">
-        <h2>Đăng nhập</h2>
-        <p>Đăng nhập để truy cập hệ thống quản lý thư viện.</p>
+        <h2>Đăng ký</h2>
+        <p>Tạo tài khoản để truy cập hệ thống quản lý thư viện.</p>
 
         <form onSubmit={handleSubmit}>
           <label>
-            Tên đăng nhập
+            Username
             <input
               value={username}
               onChange={(e) => setUsername(e.target.value)}
               type="text"
               placeholder="Nhập username"
+              required
+            />
+          </label>
+
+          <label>
+            Email
+            <input
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
+              type="email"
+              placeholder="Nhập email"
               required
             />
           </label>
@@ -65,13 +77,13 @@ export default function Login({ onLogin, token }) {
           {error && <div className="login-error">{error}</div>}
 
           <button type="submit" className="btn btn-primary" disabled={loading}>
-            {loading ? 'Đang đăng nhập...' : 'Đăng nhập'}
+            {loading ? 'Đang đăng ký...' : 'Đăng ký'}
           </button>
         </form>
 
         <div className="login-footer">
           <p>
-            Chưa có tài khoản? <Link to="/register">Đăng ký ngay</Link>
+            Đã có tài khoản? <Link to="/login">Đăng nhập tại đây</Link>
           </p>
         </div>
       </div>

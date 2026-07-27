@@ -3,10 +3,11 @@ import { BrowserRouter, Routes, Route, Navigate, NavLink, useLocation } from 're
 import { useEffect, useMemo, useState } from 'react';
 import './App.css';
 import Login from './pages/Login.jsx';
+import Register from './pages/Register.jsx';
 import Dashboard from './pages/Dashboard.jsx';
 import Books from './pages/Books.jsx';
-import Readers from './pages/Readers.jsx';
-import Borrowing from './pages/Borrowing.jsx';
+import ReadersPage from './pages/readers/ReadersPage.jsx';
+import BorrowingPage from './pages/borrowing/BorrowingPage.jsx';
 
 function RequireAuth({ token, children }) {
   const location = useLocation();
@@ -79,8 +80,8 @@ function ProtectedLayout({ token, onLogout }) {
         <Routes>
           <Route path="/dashboard" element={<Dashboard />} />
           <Route path="/books" element={<Books />} />
-          <Route path="/readers" element={<Readers />} />
-          <Route path="/borrowing" element={<Borrowing />} />
+          <Route path="/readers" element={<ReadersPage />} />
+          <Route path="/borrowing" element={<BorrowingPage />} />
           <Route path="*" element={<Navigate to="/dashboard" replace />} />
         </Routes>
       </div>
@@ -117,6 +118,7 @@ function App() {
     <BrowserRouter>
       <Routes>
         <Route path="/login" element={<Login onLogin={handleLogin} token={token} />} />
+        <Route path="/register" element={<Register onLogin={handleLogin} token={token} />} />
         <Route
           path="/*"
           element={

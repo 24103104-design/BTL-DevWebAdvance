@@ -6,6 +6,7 @@ import { AuthService } from './auth.service';
 
 interface JwtPayload {
   sub: string;
+  role: string;
 }
 
 @Injectable()
@@ -27,6 +28,15 @@ export class JwtStrategy extends PassportStrategy(Strategy) {
   }
 
   async validate(payload: JwtPayload) {
-    return this.authService.validateUser(payload.sub);
+    const user = await this.authService.validateUser(payload.sub);
+    if (!user) {
+      return null;
+    }
+    return {
+      id: user.id,
+      username: user.username,
+      email: user.email,
+      role: payload.role,
+    };
   }
 }

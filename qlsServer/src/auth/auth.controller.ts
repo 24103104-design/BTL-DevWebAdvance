@@ -15,6 +15,7 @@ interface RequestUser {
   id: string;
   username: string;
   email: string;
+  role: string;
 }
 
 @Controller('auth')
@@ -38,6 +39,7 @@ export class AuthController {
       id: req.user.id,
       username: req.user.username,
       email: req.user.email,
+      role: req.user.role,
     };
   }
 }

@@ -23,9 +23,9 @@ export class AuthService {
       throw new ConflictException('Username đã được sử dụng');
     }
 
-    const user = await this.userService.create(username, email, password);
+    const user = await this.userService.create(username, email, password, 'user');
 
-    const payload = { sub: user.id, username: user.username };
+    const payload = { sub: user.id, username: user.username, role: user.role };
     const access_token = this.jwtService.sign(payload);
 
     return {
@@ -34,6 +34,7 @@ export class AuthService {
         id: user.id,
         username: user.username,
         email: user.email,
+        role: user.role,
       },
     };
   }
@@ -55,7 +56,7 @@ export class AuthService {
       throw new UnauthorizedException('Username hoặc password không đúng');
     }
 
-    const payload = { sub: user.id, username: user.username };
+    const payload = { sub: user.id, username: user.username, role: user.role };
     const access_token = this.jwtService.sign(payload);
 
     return {
@@ -64,6 +65,7 @@ export class AuthService {
         id: user.id,
         username: user.username,
         email: user.email,
+        role: user.role,
       },
     };
   }
