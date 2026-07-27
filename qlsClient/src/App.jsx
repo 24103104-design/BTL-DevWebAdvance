@@ -1,91 +1,132 @@
 import "bootstrap/dist/css/bootstrap.min.css";
+import { BrowserRouter, Routes, Route, Navigate, NavLink, useLocation } from 'react-router-dom';
+import { useEffect, useMemo, useState } from 'react';
+import './App.css';
+import Login from './pages/Login.jsx';
+import Dashboard from './pages/Dashboard.jsx';
+import Books from './pages/Books.jsx';
+import Readers from './pages/Readers.jsx';
+import Borrowing from './pages/Borrowing.jsx';
+
+function RequireAuth({ token, children }) {
+  const location = useLocation();
+
+  if (!token) {
+    return <Navigate to="/login" state={{ from: location }} replace />;
+  }
+
+  return children;
+}
+
+function ProtectedLayout({ token, onLogout }) {
+  return (
+    <div className="app-shell">
+      <aside className="app-sidebar">
+        <div className="brand-logo">
+          <div className="brand-mark">LP</div>
+          <div>
+            <strong>Library</strong>
+            <span>Phenikaa</span>
+          </div>
+        </div>
+
+        <nav className="sidebar-nav">
+          <NavLink to="/dashboard" className="sidebar-link">
+            <span className="sidebar-icon">🏠</span>
+            Trang chủ
+          </NavLink>
+          <NavLink to="/books" className="sidebar-link">
+            <span className="sidebar-icon">📚</span>
+            Quản lý sách
+          </NavLink>
+          <NavLink to="/readers" className="sidebar-link">
+            <span className="sidebar-icon">👤</span>
+            Quản lý độc giả
+          </NavLink>
+          <NavLink to="/borrowing" className="sidebar-link">
+            <span className="sidebar-icon">📝</span>
+            Phiếu mượn
+          </NavLink>
+          <NavLink to="/dashboard" className="sidebar-link">
+            <span className="sidebar-icon">📊</span>
+            Thống kê
+          </NavLink>
+        </nav>
+
+        <div className="sidebar-footer">
+          <p>Hệ thống quản lý thư viện</p>
+          <small>Phenikaa University</small>
+        </div>
+      </aside>
+
+      <div className="app-main">
+        <header className="topbar">
+          <div className="topbar-search input-group">
+            <input type="search" className="form-control" placeholder="Tìm kiếm chức năng..." />
+            <button className="btn btn-outline-secondary" type="button">
+              Tìm kiếm
+            </button>
+          </div>
+          <div className="topbar-user">
+            <span className="user-name">Người dùng</span>
+            <div className="user-avatar">GD</div>
+            <button className="btn btn-outline-secondary btn-logout" onClick={onLogout}>
+              Đăng xuất
+            </button>
+          </div>
+        </header>
+
+        <Routes>
+          <Route path="/dashboard" element={<Dashboard />} />
+          <Route path="/books" element={<Books />} />
+          <Route path="/readers" element={<Readers />} />
+          <Route path="/borrowing" element={<Borrowing />} />
+          <Route path="*" element={<Navigate to="/dashboard" replace />} />
+        </Routes>
+      </div>
+    </div>
+  );
+}
 
 function App() {
+  const storedToken = localStorage.getItem('authToken');
+  const [token, setToken] = useState(storedToken || '');
+
+  useEffect(() => {
+    if (token) {
+      localStorage.setItem('authToken', token);
+    } else {
+      localStorage.removeItem('authToken');
+    }
+  }, [token]);
+
+  const authContext = useMemo(
+    () => ({ token, setToken }),
+    [token],
+  );
+
+  function handleLogin(newToken) {
+    setToken(newToken);
+  }
+
+  function handleLogout() {
+    setToken('');
+  }
+
   return (
-    <div className="min-vh-100 bg-light">
-      <nav className="navbar navbar-expand-lg navbar-dark bg-primary">
-        <div className="container">
-          <a className="navbar-brand fw-bold" href="#">LibraryHub</a>
-          <div className="navbar-nav ms-auto">
-            <a className="nav-link active" href="#">Trang chủ</a>
-            <a className="nav-link" href="#">Sách</a>
-            <a className="nav-link" href="#">Mượn trả</a>
-            <a className="nav-link" href="#">Liên hệ</a>
-          </div>
-        </div>
-      </nav>
-
-      <main className="container py-5">
-        <div className="text-center mb-4">
-          <h1 className="display-5 fw-bold">Quản lý thư viện</h1>
-          <p className="lead text-muted">Một giao diện Bootstrap đơn giản và đẹp mắt.</p>
-        </div>
-
-        <div className="row g-4">
-          <div className="col-md-4">
-            <div className="card shadow-sm border-0 h-100">
-              <div className="card-body">
-                <h5 className="card-title">Sách</h5>
-                <p className="card-text">Quản lý danh mục sách và số lượng tồn kho.</p>
-                <a href="#" className="btn btn-primary">Xem chi tiết</a>
-              </div>
-            </div>
-          </div>
-          <div className="col-md-4">
-            <div className="card shadow-sm border-0 h-100">
-              <div className="card-body">
-                <h5 className="card-title">Độc giả</h5>
-                <p className="card-text">Theo dõi thông tin độc giả và lịch sử mượn.</p>
-                <a href="#" className="btn btn-outline-primary">Xem chi tiết</a>
-              </div>
-            </div>
-          </div>
-          <div className="col-md-4">
-            <div className="card shadow-sm border-0 h-100">
-              <div className="card-body">
-                <h5 className="card-title">Mượn trả</h5>
-                <p className="card-text">Kiểm soát quy trình mượn, trả sách nhanh chóng.</p>
-                <a href="#" className="btn btn-success">Xem chi tiết</a>
-              </div>
-            </div>
-          </div>
-        </div>
-
-        <div className="card mt-4 shadow-sm border-0">
-          <div className="card-body">
-            <h5 className="card-title">Danh sách sách</h5>
-            <table className="table table-striped mb-0">
-              <thead>
-                <tr>
-                  <th>Mã sách</th>
-                  <th>Tên sách</th>
-                  <th>Tác giả</th>
-                  <th>Số lượng</th>
-                </tr>
-              </thead>
-              <tbody>
-                <tr>
-                  <td>S001</td>
-                  <td>React cho người mới</td>
-                  <td>Nguyễn A</td>
-                  <td>10</td>
-                </tr>
-                <tr>
-                  <td>S002</td>
-                  <td>NestJS thực chiến</td>
-                  <td>Trần B</td>
-                  <td>7</td>
-                </tr>
-              </tbody>
-            </table>
-          </div>
-        </div>
-      </main>
-
-      <footer className="bg-dark text-white text-center py-3 mt-auto">
-        <small>© 2026 LibraryHub. All rights reserved.</small>
-      </footer>
-    </div>
+    <BrowserRouter>
+      <Routes>
+        <Route path="/login" element={<Login onLogin={handleLogin} token={token} />} />
+        <Route
+          path="/*"
+          element={
+            <RequireAuth token={token}>
+              <ProtectedLayout token={token} onLogout={handleLogout} />
+            </RequireAuth>
+          }
+        />
+      </Routes>
+    </BrowserRouter>
   );
 }
 
