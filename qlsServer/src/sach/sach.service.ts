@@ -15,8 +15,18 @@ export class SachService {
     return await this.sachRepository.save(newSach);
   }
 
-  async findAll(): Promise<SachEntity[]> {
-    return await this.sachRepository.find();
+  async findAll(search?: string): Promise<SachEntity[]> {
+    const query = this.sachRepository.createQueryBuilder('sach');
+
+    if (search?.trim()) {
+      const keyword = `%${search.trim().toLowerCase()}%`;
+      query.where('LOWER(sach.MaSach) LIKE :keyword', { keyword })
+        .orWhere('LOWER(sach.TenSach) LIKE :keyword', { keyword })
+        .orWhere('LOWER(sach.TacGia) LIKE :keyword', { keyword })
+        .orWhere('LOWER(sach.NhaXuatBan) LIKE :keyword', { keyword });
+    }
+
+    return await query.getMany();
   }
 
   async findOne(maSach: string): Promise<SachEntity> {

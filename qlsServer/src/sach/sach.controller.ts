@@ -6,22 +6,25 @@ import {
   Put,
   Param,
   Delete,
+  Query,
 } from '@nestjs/common';
 import { SachService } from './sach.service';
 import { SachEntity } from './sach.entity';
+import { CreateSachDto } from './dto/create-sach.dto';
+import { UpdateSachDto } from './dto/update-sach.dto';
 
 @Controller('sach')
 export class SachController {
   constructor(private readonly sachService: SachService) {}
 
   @Post()
-  create(@Body() data: Partial<SachEntity>) {
-    return this.sachService.create(data);
+  create(@Body() data: CreateSachDto) {
+    return this.sachService.create(data as Partial<SachEntity>);
   }
 
   @Get()
-  findAll() {
-    return this.sachService.findAll();
+  findAll(@Query('search') search?: string) {
+    return this.sachService.findAll(search);
   }
 
   @Get(':id')
@@ -30,8 +33,8 @@ export class SachController {
   }
 
   @Put(':id')
-  update(@Param('id') id: string, @Body() data: Partial<SachEntity>) {
-    return this.sachService.update(id, data);
+  update(@Param('id') id: string, @Body() data: UpdateSachDto) {
+    return this.sachService.update(id, data as Partial<SachEntity>);
   }
 
   @Delete(':id')
