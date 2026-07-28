@@ -1,4 +1,10 @@
 {
+  "scripts": {
+    "test": "npm --prefix qlsServer test",
+    "test:watch": "npm --prefix qlsServer run test:watch",
+    "test:cov": "npm --prefix qlsServer run test:cov",
+    "test:e2e": "npm --prefix qlsServer run test:e2e"
+  },
   "dependencies": {
     "@nestjs/cli": "^11.0.23"
   }
