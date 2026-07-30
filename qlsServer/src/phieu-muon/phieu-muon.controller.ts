@@ -4,6 +4,7 @@ import {
   Post,
   Body,
   Put,
+  Patch,
   Param,
   Delete,
 } from '@nestjs/common';
@@ -32,6 +33,11 @@ export class PhieuMuonController {
   @Put(':id')
   update(@Param('id') id: string, @Body() data: Partial<PhieuMuonEntity>) {
     return this.phieuMuonService.update(id, data);
+  }
+
+  @Patch(':id/tra-sach')
+  traSach(@Param('id') id: string) {
+    return this.phieuMuonService.returnBook(id);
   }
 
   @Delete(':id')

@@ -19,6 +19,16 @@ export class DbInitService implements OnModuleInit {
         console.log('Column role already exists.');
       }
 
+      console.log('--- Checking for NgayTraThucTe column in PHIEU_MUON table ---');
+      const phieuMuonColumns = await queryRunner.query("SHOW COLUMNS FROM PHIEU_MUON LIKE 'NgayTraThucTe'");
+      if (phieuMuonColumns.length === 0) {
+        console.log('Adding NgayTraThucTe column to PHIEU_MUON table...');
+        await queryRunner.query('ALTER TABLE PHIEU_MUON ADD COLUMN NgayTraThucTe DATE NULL');
+        console.log('Column NgayTraThucTe added successfully.');
+      } else {
+        console.log('Column NgayTraThucTe already exists.');
+      }
+
       console.log('--- Checking sample reader names in DOC_GIA table ---');
       await queryRunner.query(
         "UPDATE DOC_GIA SET HoTen = 'Nguyễn Huy Kiên' WHERE HoTen = 'Nguyen Huy Kien'",

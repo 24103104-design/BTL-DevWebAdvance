@@ -1,18 +1,41 @@
 import { BadRequestException, Injectable, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
-import { PhieuMuonEntity } from './phieu-muon.entity';
+import { PhieuMuonEntity, TrangThaiPhieuMuon } from './phieu-muon.entity';
+import { SachEntity } from '../sach/sach.entity';
 
 @Injectable()
 export class PhieuMuonService {
   constructor(
     @InjectRepository(PhieuMuonEntity)
     private readonly phieuMuonRepository: Repository<PhieuMuonEntity>,
+    @InjectRepository(SachEntity)
+    private readonly sachRepository: Repository<SachEntity>,
   ) {}
 
   // 1. Tạo mới phiếu mượn (Create)
   async create(data: Partial<PhieuMuonEntity>): Promise<PhieuMuonEntity> {
-    const newPhieu = this.phieuMuonRepository.create(data);
+    if (!data.maSach) {
+      throw new BadRequestException('Thiếu mã sách để tạo phiếu mượn');
+    }
+
+    const sach = await this.sachRepository.findOne({
+      where: { maSach: data.maSach },
+    });
+    if (!sach) {
+      throw new NotFoundException(`Không tìm thấy sách mã: ${data.maSach}`);
+    }
+    if (sach.soLuong <= 0) {
+      throw new BadRequestException('Sách đã hết, không thể tạo phiếu mượn');
+    }
+
+    sach.soLuong -= 1;
+    await this.sachRepository.save(sach);
+
+    const newPhieu = this.phieuMuonRepository.create({
+      ...data,
+      trangThai: data.trangThai || TrangThaiPhieuMuon.DANG_MUON,
+    });
     return await this.phieuMuonRepository.save(newPhieu);
   }
 
@@ -46,6 +69,27 @@ export class PhieuMuonService {
       );
     }
     return phieu;
+  }
+
+  async returnBook(maPhieu: string): Promise<PhieuMuonEntity> {
+    const phieu = await this.findOne(maPhieu);
+    if (phieu.trangThai === TrangThaiPhieuMuon.DA_TRA) {
+      throw new BadRequestException(`Phiếu mượn ${maPhieu} đã được trả`);
+    }
+
+    const sach = await this.sachRepository.findOne({
+      where: { maSach: phieu.maSach },
+    });
+    if (!sach) {
+      throw new NotFoundException(`Không tìm thấy sách mã: ${phieu.maSach}`);
+    }
+
+    phieu.trangThai = TrangThaiPhieuMuon.DA_TRA;
+    phieu.ngayTraThucTe = new Date();
+
+    sach.soLuong += 1;
+    await this.sachRepository.save(sach);
+    return await this.phieuMuonRepository.save(phieu);
   }
 
   async recentActivity(limit = 5) {

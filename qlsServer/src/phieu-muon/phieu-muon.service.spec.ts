@@ -1,11 +1,10 @@
 import { Test, TestingModule } from '@nestjs/testing';
-import { NotFoundException } from '@nestjs/common';
+import { BadRequestException, NotFoundException } from '@nestjs/common';
 import { getRepositoryToken } from '@nestjs/typeorm';
 import { Repository, ObjectLiteral } from 'typeorm';
 import { PhieuMuonService } from './phieu-muon.service';
 import { PhieuMuonEntity, TrangThaiPhieuMuon } from './phieu-muon.entity';
-import { SachService } from '../sach/sach.service';
-import { DocGiaService } from '../doc-gia/doc-gia.service';
+import { SachEntity } from '../sach/sach.entity';
 
 type MockRepository<T extends ObjectLiteral = any> = Partial<
   Record<keyof Repository<T>, jest.Mock>
@@ -26,59 +25,35 @@ function createMockRepository<
 describe('PhieuMuonService', () => {
   let service: PhieuMuonService;
   let repository: MockRepository<PhieuMuonEntity>;
+  let sachRepository: MockRepository<SachEntity>;
 
-  const mockPhieu: PhieuMuonEntity = {
+  const mockPhieu = {
     maPhieu: 'PM001',
     maDocGia: 'DG001',
     maSach: 'S001',
     ngayMuon: new Date('2026-01-01'),
     ngayHenTra: new Date('2026-01-15'),
     trangThai: TrangThaiPhieuMuon.DANG_MUON,
-    docGia: {
-      maDocGia: 'DG001',
-      hoTen: 'Nguyen Van A',
-      ngaySinh: new Date('2000-01-01'),
-      soDienThoai: '0987654321',
-      email: 'a@example.com',
-      phieuMuons: [],
-    },
-    sach: {
-      maSach: 'S001',
-      tenSach: 'Sach A',
-      tacGia: '',
-      nhaXuatBan: '',
-      namXuatBan: 2020,
-      soLuong: 1,
-      phieuMuons: [],
-    },
-  };
+  } as unknown as PhieuMuonEntity;
 
   beforeEach(async () => {
     const module: TestingModule = await Test.createTestingModule({
       providers: [
         PhieuMuonService,
         {
-          provide: SachService,
-          useValue: {
-            findOne: jest.fn().mockResolvedValue(mockPhieu.sach),
-            update: jest.fn(),
-          },
-        },
-        {
-          provide: DocGiaService,
-          useValue: {
-            findOne: jest.fn(),
-          },
-        },
-        {
           provide: getRepositoryToken(PhieuMuonEntity),
           useValue: createMockRepository<PhieuMuonEntity>(),
+        },
+        {
+          provide: getRepositoryToken(SachEntity),
+          useValue: createMockRepository<SachEntity>(),
         },
       ],
     }).compile();
 
     service = module.get<PhieuMuonService>(PhieuMuonService);
     repository = module.get(getRepositoryToken(PhieuMuonEntity));
+    sachRepository = module.get(getRepositoryToken(SachEntity));
   });
 
   afterEach(() => {
@@ -90,9 +65,14 @@ describe('PhieuMuonService', () => {
   });
 
   describe('create', () => {
-    it('nên tạo mới một phiếu mượn', async () => {
-      repository.create!.mockReturnValue(mockPhieu);
-      repository.save!.mockResolvedValue(mockPhieu);
+    it('nên tạo mới một phiếu mượn và trừ số lượng sách', async () => {
+      const sach = { maSach: 'S001', soLuong: 2 } as SachEntity;
+      const expectedPhieu = { ...mockPhieu, maPhieu: 'PM001' } as PhieuMuonEntity;
+
+      sachRepository.findOne!.mockResolvedValue(sach);
+      repository.create!.mockReturnValue(expectedPhieu);
+      repository.save!.mockResolvedValue(expectedPhieu);
+      sachRepository.save!.mockResolvedValue({ ...sach, soLuong: 1 });
 
       const result = await service.create({
         maPhieu: 'PM001',
@@ -101,24 +81,51 @@ describe('PhieuMuonService', () => {
         ngayMuon: '2026-01-01',
       });
 
+      expect(sachRepository.findOne).toHaveBeenCalledWith({ where: { maSach: 'S001' } });
+      expect(sachRepository.save).toHaveBeenCalledWith(expect.objectContaining({ soLuong: 1 }));
       expect(repository.create).toHaveBeenCalled();
-      expect(repository.save).toHaveBeenCalledWith(mockPhieu);
-      expect(result).toEqual(mockPhieu);
+      expect(repository.save).toHaveBeenCalledWith(expectedPhieu);
+      expect(result).toEqual(expectedPhieu);
     });
 
-    it('nên áp dụng trạng thái mặc định "Dang muon" khi không truyền trangThai', async () => {
-      const dataKhongTrangThai = {
-        maPhieu: 'PM002',
-        maDocGia: 'DG002',
-        maSach: 'S002',
-        ngayMuon: '2026-01-05',
-      };
-      repository.create!.mockImplementation((d) => d as PhieuMuonEntity);
+    it('nên từ chối tạo phiếu mượn khi sách đã hết', async () => {
+      sachRepository.findOne!.mockResolvedValue({ maSach: 'S001', soLuong: 0 } as SachEntity);
+
+      await expect(
+        service.create({
+          maPhieu: 'PM002',
+          maDocGia: 'DG002',
+          maSach: 'S001',
+          ngayMuon: '2026-01-05',
+        }),
+      ).rejects.toThrow(BadRequestException);
+
+      expect(sachRepository.save).not.toHaveBeenCalled();
+      expect(repository.save).not.toHaveBeenCalled();
+    });
+  });
+
+  describe('returnBook', () => {
+    it('nên trả sách thành công và cập nhật trạng thái + số lượng sách', async () => {
+      const sach = { maSach: 'S001', soLuong: 1 } as SachEntity;
+      const phieu = { ...mockPhieu } as PhieuMuonEntity;
+
+      repository.findOne!.mockResolvedValue(phieu);
       repository.save!.mockImplementation((entity) => Promise.resolve(entity));
+      sachRepository.findOne!.mockResolvedValue(sach);
+      sachRepository.save!.mockImplementation((entity) => Promise.resolve(entity));
 
-      const result = await service.create(dataKhongTrangThai);
+      const result = await service.returnBook('PM001');
 
-      expect(result.trangThai).toBeUndefined();
+      expect(repository.findOne).toHaveBeenCalledWith({ where: { maPhieu: 'PM001' } });
+      expect(sachRepository.findOne).toHaveBeenCalledWith({ where: { maSach: phieu.maSach } });
+      expect(sachRepository.save).toHaveBeenCalledWith(expect.objectContaining({ maSach: 'S001', soLuong: 2 }));
+      expect(repository.save).toHaveBeenCalledWith(expect.objectContaining({
+        maPhieu: 'PM001',
+        trangThai: TrangThaiPhieuMuon.DA_TRA,
+      }));
+      expect(result.trangThai).toBe(TrangThaiPhieuMuon.DA_TRA);
+      expect(result.ngayTraThucTe).toBeInstanceOf(Date);
     });
   });
 

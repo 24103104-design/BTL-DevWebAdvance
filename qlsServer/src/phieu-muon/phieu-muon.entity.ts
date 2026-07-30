@@ -23,6 +23,9 @@ export class PhieuMuonEntity {
   @Column({ name: 'NgayHenTra', type: 'date', nullable: true })
   ngayHenTra?: Date;
 
+  @Column({ name: 'NgayTraThucTe', type: 'date', nullable: true })
+  ngayTraThucTe?: Date;
+
   @Column({ name: 'TrangThai', length: 30, default: 'Dang muon' })
   trangThai!: string;
 }
