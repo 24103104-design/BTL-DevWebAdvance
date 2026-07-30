@@ -76,7 +76,10 @@ export class UserController {
     // Try to use sharp to resize and convert to webp. Fallback to original buffer.
     try {
       const sharp = require('sharp');
-      const processed = await sharp(buffer).resize(300, 300, { fit: 'cover' }).toFormat('webp').toBuffer();
+      const processed = await sharp(buffer)
+        .resize(300, 300, { fit: 'cover' })
+        .toFormat('webp')
+        .toBuffer();
       await writeFile(destination, processed);
     } catch (err) {
       // sharp not available or processing failed -> save original
@@ -84,7 +87,10 @@ export class UserController {
     }
 
     const avatarUrl = `/uploads/avatars/${fileName}`;
-    const updatedUser = await this.userService.updateAvatarUrl(req.user.id, avatarUrl);
+    const updatedUser = await this.userService.updateAvatarUrl(
+      req.user.id,
+      avatarUrl,
+    );
 
     return {
       avatarUrl,

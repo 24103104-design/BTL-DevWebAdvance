@@ -62,7 +62,9 @@ export class SachController {
       new ParseFilePipe({
         fileIsRequired: false,
         validators: [
-          new FileTypeValidator({ fileType: 'image/jpeg|image/png|image/webp' }),
+          new FileTypeValidator({
+            fileType: 'image/jpeg|image/png|image/webp',
+          }),
           new MaxFileSizeValidator({ maxSize: 5 * 1024 * 1024 }),
         ],
       }),
@@ -106,7 +108,9 @@ export class SachController {
       new ParseFilePipe({
         fileIsRequired: false,
         validators: [
-          new FileTypeValidator({ fileType: 'image/jpeg|image/png|image/webp' }),
+          new FileTypeValidator({
+            fileType: 'image/jpeg|image/png|image/webp',
+          }),
           new MaxFileSizeValidator({ maxSize: 5 * 1024 * 1024 }),
         ],
       }),

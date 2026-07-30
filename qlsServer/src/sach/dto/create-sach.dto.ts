@@ -1,5 +1,12 @@
 import { Type } from 'class-transformer';
-import { IsString, IsNotEmpty, IsOptional, MaxLength, IsInt, Min } from 'class-validator';
+import {
+  IsString,
+  IsNotEmpty,
+  IsOptional,
+  MaxLength,
+  IsInt,
+  Min,
+} from 'class-validator';
 
 export class CreateSachDto {
   @IsNotEmpty({ message: 'Mã sách không được trống' })

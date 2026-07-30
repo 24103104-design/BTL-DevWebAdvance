@@ -37,6 +37,8 @@ export class PhieuMuonController {
 
   @Patch(':id/tra-sach')
   traSach(@Param('id') id: string) {
+    // Use the unified return implementation. Keep compatibility by calling
+    // the service method `returnBook` which contains the full logic.
     return this.phieuMuonService.returnBook(id);
   }
 
