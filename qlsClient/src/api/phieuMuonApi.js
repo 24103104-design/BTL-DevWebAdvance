@@ -9,7 +9,7 @@ const phieuMuonApi = {
   update: (maPhieu, data) => axiosClient.put(`/phieu-muon/${maPhieu}`, data),
   remove: (maPhieu) => axiosClient.delete(`/phieu-muon/${maPhieu}`),
   traSach: (maPhieu) =>
-  axiosClient.put(`/phieu-muon/${maPhieu}`, { trangThai: "Da tra" }),
+  axiosClient.patch(`/phieu-muon/${maPhieu}/tra-sach`),
 };
 
 export default phieuMuonApi;
