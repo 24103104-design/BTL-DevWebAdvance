@@ -28,7 +28,12 @@ export class AuthService {
       throw new ConflictException('Email đã được sử dụng');
     }
 
-    const user = await this.userService.create(username, email, password, 'user');
+    const user = await this.userService.create(
+      username,
+      email,
+      password,
+      'user',
+    );
 
     const payload = {
       sub: user.id,

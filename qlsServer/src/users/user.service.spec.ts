@@ -30,11 +30,19 @@ describe('UserService', () => {
   it('cập nhật avatarUrl cho người dùng tồn tại', async () => {
     const user = { id: 'user-1', avatarUrl: null } as User;
     repository.findOne.mockResolvedValue(user);
-    repository.save.mockResolvedValue({ ...user, avatarUrl: '/uploads/avatars/demo.png' });
+    repository.save.mockResolvedValue({
+      ...user,
+      avatarUrl: '/uploads/avatars/demo.png',
+    });
 
-    const result = await service.updateAvatarUrl('user-1', '/uploads/avatars/demo.png');
+    const result = await service.updateAvatarUrl(
+      'user-1',
+      '/uploads/avatars/demo.png',
+    );
 
-    expect(repository.findOne).toHaveBeenCalledWith({ where: { id: 'user-1' } });
+    expect(repository.findOne).toHaveBeenCalledWith({
+      where: { id: 'user-1' },
+    });
     expect(repository.save).toHaveBeenCalled();
     expect(result.avatarUrl).toBe('/uploads/avatars/demo.png');
   });
@@ -42,6 +50,8 @@ describe('UserService', () => {
   it('ném NotFoundException khi người dùng không tồn tại', async () => {
     repository.findOne.mockResolvedValue(null);
 
-    await expect(service.updateAvatarUrl('missing', '/uploads/avatars/demo.png')).rejects.toThrow(NotFoundException);
+    await expect(
+      service.updateAvatarUrl('missing', '/uploads/avatars/demo.png'),
+    ).rejects.toThrow(NotFoundException);
   });
 });

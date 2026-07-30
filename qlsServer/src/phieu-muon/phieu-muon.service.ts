@@ -1,19 +1,66 @@
-import { BadRequestException, Injectable, NotFoundException } from '@nestjs/common';
+import {
+  BadRequestException,
+  Injectable,
+  NotFoundException,
+} from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { PhieuMuonEntity } from './phieu-muon.entity';
+import { SachEntity } from '../sach/sach.entity';
+interface BorrowTrendRow {
+  periodLabel: string;
+  value: string;
+}
+
+interface BorrowStatusRow {
+  status: string;
+  count: string;
+}
 
 @Injectable()
 export class PhieuMuonService {
   constructor(
     @InjectRepository(PhieuMuonEntity)
     private readonly phieuMuonRepository: Repository<PhieuMuonEntity>,
+    @InjectRepository(SachEntity)
+    private readonly sachRepository: Repository<SachEntity>,
   ) {}
 
   // 1. Tạo mới phiếu mượn (Create)
-  async create(data: Partial<PhieuMuonEntity>): Promise<PhieuMuonEntity> {
-    const newPhieu = this.phieuMuonRepository.create(data);
+  async create(data: Partial<PhieuMuonEntity>) {
+    const sach = await this.sachRepository.findOne({
+      where: { maSach: data.maSach },
+    });
+    if (!sach) throw new NotFoundException('Không tìm thấy sách');
+    if (sach.soLuong <= 0)
+      throw new BadRequestException('Sách đã hết, không thể mượn');
+
+    sach.soLuong -= 1;
+    await this.sachRepository.save(sach);
+
+    const newPhieu = this.phieuMuonRepository.create({
+      ...data,
+      trangThai: 'Dang muon',
+    });
     return await this.phieuMuonRepository.save(newPhieu);
+  }
+
+  async traSach(maPhieu: string) {
+    const phieu = await this.findOne(maPhieu);
+    if (phieu.trangThai === 'Da tra') {
+      throw new BadRequestException('Phiếu này đã được trả trước đó');
+    }
+    phieu.trangThai = 'Da tra';
+    await this.phieuMuonRepository.save(phieu);
+
+    const sach = await this.sachRepository.findOne({
+      where: { maSach: phieu.maSach },
+    });
+    if (sach) {
+      sach.soLuong += 1;
+      await this.sachRepository.save(sach);
+    }
+    return phieu;
   }
 
   async countByStatus(trangThai: string): Promise<number> {
@@ -94,7 +141,13 @@ export class PhieuMuonService {
   async topBorrowedBooks(limit = 3) {
     return this.phieuMuonRepository
       .createQueryBuilder('phieu')
-      .select(['phieu.MaSach as maSach', 's.TenSach as tenSach', 's.TacGia as tacGia', 's.AnhBia as anhBia', 'COUNT(*) as borrowCount'])
+      .select([
+        'phieu.MaSach as maSach',
+        's.TenSach as tenSach',
+        's.TacGia as tacGia',
+        's.AnhBia as anhBia',
+        'COUNT(*) as borrowCount',
+      ])
       .leftJoin('SACH', 's', 's.MaSach = phieu.MaSach')
       .groupBy('phieu.MaSach')
       .orderBy('borrowCount', 'DESC')
@@ -102,7 +155,11 @@ export class PhieuMuonService {
       .getRawMany();
   }
 
-  async borrowTrend(options: { period?: string; startDate?: string; endDate?: string }) {
+  async borrowTrend(options: {
+    period?: string;
+    startDate?: string;
+    endDate?: string;
+  }) {
     const { period, startDate, endDate } = options;
     const now = new Date();
 
@@ -122,60 +179,99 @@ export class PhieuMuonService {
         throw new BadRequestException('startDate hoặc endDate không hợp lệ');
       }
       rangeStart = parsedStart;
-      const diffDays = Math.round((new Date(parsedEnd).getTime() - new Date(parsedStart).getTime()) / (1000 * 3600 * 24));
-      periodType = diffDays <= 30 ? 'daily' : diffDays <= 120 ? 'weekly' : 'monthly';
+      const diffDays = Math.round(
+        (new Date(parsedEnd).getTime() - new Date(parsedStart).getTime()) /
+          (1000 * 3600 * 24),
+      );
+      periodType =
+        diffDays <= 30 ? 'daily' : diffDays <= 120 ? 'weekly' : 'monthly';
       return this.buildBorrowTrend(rangeStart, parsedEnd, periodType);
     }
 
     switch (period) {
       case '7d':
-        rangeStart = new Date(now.getTime() - 6 * 24 * 60 * 60 * 1000).toISOString().slice(0, 10);
+        rangeStart = new Date(now.getTime() - 6 * 24 * 60 * 60 * 1000)
+          .toISOString()
+          .slice(0, 10);
         periodType = 'daily';
         break;
       case '30d':
-        rangeStart = new Date(now.getTime() - 29 * 24 * 60 * 60 * 1000).toISOString().slice(0, 10);
+        rangeStart = new Date(now.getTime() - 29 * 24 * 60 * 60 * 1000)
+          .toISOString()
+          .slice(0, 10);
         periodType = 'daily';
         break;
       case '3m':
-        rangeStart = new Date(now.getFullYear(), now.getMonth() - 3, now.getDate()).toISOString().slice(0, 10);
+        rangeStart = new Date(
+          now.getFullYear(),
+          now.getMonth() - 3,
+          now.getDate(),
+        )
+          .toISOString()
+          .slice(0, 10);
         periodType = 'weekly';
         break;
       case '1y':
-        rangeStart = new Date(now.getFullYear() - 1, now.getMonth(), now.getDate()).toISOString().slice(0, 10);
+        rangeStart = new Date(
+          now.getFullYear() - 1,
+          now.getMonth(),
+          now.getDate(),
+        )
+          .toISOString()
+          .slice(0, 10);
         periodType = 'monthly';
         break;
       default:
-        rangeStart = new Date(now.getTime() - 29 * 24 * 60 * 60 * 1000).toISOString().slice(0, 10);
+        rangeStart = new Date(now.getTime() - 29 * 24 * 60 * 60 * 1000)
+          .toISOString()
+          .slice(0, 10);
         periodType = 'daily';
         break;
     }
 
-    return this.buildBorrowTrend(rangeStart, now.toISOString().slice(0, 10), periodType);
+    return this.buildBorrowTrend(
+      rangeStart,
+      now.toISOString().slice(0, 10),
+      periodType,
+    );
   }
 
-  private async buildBorrowTrend(startDate: string, endDate: string, periodType: 'daily' | 'weekly' | 'monthly') {
+  private async buildBorrowTrend(
+    startDate: string,
+    endDate: string,
+    periodType: 'daily' | 'weekly' | 'monthly',
+  ) {
     const periodExpression =
       periodType === 'monthly'
         ? `DATE_FORMAT(phieu.NgayMuon, '%Y-%m')`
         : periodType === 'weekly'
-        ? `CONCAT(YEAR(phieu.NgayMuon), '-', WEEK(phieu.NgayMuon, 1))`
-        : `DATE(phieu.NgayMuon)`;
+          ? `CONCAT(YEAR(phieu.NgayMuon), '-', WEEK(phieu.NgayMuon, 1))`
+          : `DATE(phieu.NgayMuon)`;
 
     const query = this.phieuMuonRepository
       .createQueryBuilder('phieu')
       .select([`COUNT(*) as value`, `${periodExpression} as periodLabel`])
-      .where('phieu.NgayMuon BETWEEN :startDate AND :endDate', { startDate, endDate })
+      .where('phieu.NgayMuon BETWEEN :startDate AND :endDate', {
+        startDate,
+        endDate,
+      })
       .groupBy(periodExpression)
       .orderBy('periodLabel', 'ASC');
 
-    const rows = await query.getRawMany();
-    return rows.map((row) => ({ period: row.periodLabel, count: Number(row.value) }));
+    const rows = await query.getRawMany<BorrowTrendRow>();
+    return rows.map((row) => ({
+      period: row.periodLabel,
+      count: Number(row.value),
+    }));
   }
 
   async borrowByCategory() {
     return this.phieuMuonRepository
       .createQueryBuilder('phieu')
-      .select(["COALESCE(s.TacGia, 'Khác') as category", 'COUNT(*) as borrowCount'])
+      .select([
+        "COALESCE(s.TacGia, 'Khác') as category",
+        'COUNT(*) as borrowCount',
+      ])
       .leftJoin('SACH', 's', 's.MaSach = phieu.MaSach')
       .groupBy("COALESCE(s.TacGia, 'Khác')")
       .orderBy('borrowCount', 'DESC')
@@ -188,9 +284,9 @@ export class PhieuMuonService {
       .createQueryBuilder('phieu')
       .select(['phieu.TrangThai as status', 'COUNT(*) as count'])
       .groupBy('phieu.TrangThai')
-      .getRawMany();
+      .getRawMany<BorrowStatusRow>();
 
-    const statusMap = {
+    const statusMap: Record<string, string> = {
       'Dang muon': 'Đang mượn',
       'Da tra': 'Đã trả',
       'Qua han': 'Quá hạn',
@@ -206,12 +302,15 @@ export class PhieuMuonService {
     return this.phieuMuonRepository
       .createQueryBuilder('phieu')
       .select(['dg.HoTen as name', 'COUNT(*) as totalBorrows'])
-      .addSelect((subQuery) =>
-        subQuery
-          .select('COUNT(*)')
-          .from(PhieuMuonEntity, 'innerPhieu')
-          .where('innerPhieu.MaDocGia = phieu.MaDocGia')
-          .andWhere('innerPhieu.TrangThai = :status', { status: 'Dang muon' }),
+      .addSelect(
+        (subQuery) =>
+          subQuery
+            .select('COUNT(*)')
+            .from(PhieuMuonEntity, 'innerPhieu')
+            .where('innerPhieu.MaDocGia = phieu.MaDocGia')
+            .andWhere('innerPhieu.TrangThai = :status', {
+              status: 'Dang muon',
+            }),
         'currentBorrows',
       )
       .leftJoin('DOC_GIA', 'dg', 'dg.MaDocGia = phieu.MaDocGia')
